@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>L A B E R I N T O</title>
+
+</head>
+
+<body style="display: flex; flex-direction: column; align-items: center; background-color: rgb(184, 241, 244);">
+    <canvas style="border: 8px solid rgb(255, 255, 255); background-color: green;" id="mycanvas" width="1000"
+        height="1000"></canvas>
+    <script>
+
+
+        canvas = document.getElementById('mycanvas');
+        ctx = canvas.getContext('2d');
+
+        var player1 = null, player2 = null;
+        var piezaLaberinto = [192];
+        var dir = null, speed = 2;
+        var pause = true;
+        var seTocaron = false;
+
+        //imagenes
+        var caperucita = new Image();
+        var abuelita = new Image();
+        var final = new Image();
+        var lobo = new Image();
+        var bosque = new Image();
+        var pausa = new Image();
+        var instrucciones = new Image();
+        var controles = new Image();
+        var meta = new Image();
+        var felicidades = new Image();
+        //audio
+        var lofiBosque = new Audio();
+        //tiempo
+        var fragmentoTiempo;
+        var centesimas = "00";
+        var segundos = 0, minutos = 0;
+        var contCentesimas;
+        var contSegundos;
+        var contMinutos;
+
+
+        function cuadrito(x, y, w, h, c) {
+
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.c = c;
+
+            this.pintar = function (ctx) {
+                ctx.fillStyle = this.c;
+                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.strokeRect(this.x, this.y, this.w, this.h);
+            }
+
+            this.se_tocan = function (target) {
+
+                if (this.x < target.x + target.w &&
+                    this.x + this.w > target.x &&
+                    this.y < target.y + target.h &&
+                    this.y + this.h > target.y) {
+                    return true;
+
+                }
+            };
+        }
+
+        function laberinto() {
+
+            //caperucita
+            player1 = new cuadrito(70, 90, 25, 25, "pink");
+            //casa abuelita
+            player2 = new cuadrito(920, 900, 40, 40, "pink");
+
+            //Borde izquierdo
+            piezaLaberinto[0] = new cuadrito(50, 80, 1, 890, "black");
+            //Borde derecho
+            piezaLaberinto[1] = new cuadrito(950, 80, 1, 800, "black");
+            //Borde arriba
+            piezaLaberinto[2] = new cuadrito(50, 80, 900, 1, "black");
+            //Borde abajo
+            piezaLaberinto[3] = new cuadrito(50, 970, 860, 1, "black");
+
+            //palitos
+            piezaLaberinto[4] = new cuadrito(100, 130, 130, 1, "black");
+            piezaLaberinto[5] = new cuadrito(230, 130, 1, 45, "black");
+            piezaLaberinto[6] = new cuadrito(280, 80, 1, 50, "black");
+            piezaLaberinto[7] = new cuadrito(280, 130, 200, 1, "black");
+            piezaLaberinto[8] = new cuadrito(480, 130, 1, 40, "black");
+            piezaLaberinto[9] = new cuadrito(480, 170, 110, 1, "black");
+            piezaLaberinto[9] = new cuadrito(230, 175, 200, 1, "black");
+            piezaLaberinto[10] = new cuadrito(100, 180, 80, 1, "black");
+            piezaLaberinto[11] = new cuadrito(140, 180, 1, 40, "black");
+            piezaLaberinto[12] = new cuadrito(480, 170, 130, 1, "black");
+            piezaLaberinto[13] = new cuadrito(480, 170, 130, 1, "black");
+            piezaLaberinto[14] = new cuadrito(530, 130, 130, 1, "black");
+            piezaLaberinto[15] = new cuadrito(660, 130, 1, 200, "black");
+            piezaLaberinto[16] = new cuadrito(710, 80, 1, 140, "black");
+            piezaLaberinto[17] = new cuadrito(550, 170, 1, 80, "black");
+            piezaLaberinto[18] = new cuadrito(550, 250, 40, 1, "black");
+            piezaLaberinto[19] = new cuadrito(590, 250, 1, 40, "black");
+            piezaLaberinto[20] = new cuadrito(600, 215, 60, 1, "black");
+            piezaLaberinto[21] = new cuadrito(550, 330, 110, 1, "black");
+            piezaLaberinto[22] = new cuadrito(140, 220, 90, 1, "black");
+            piezaLaberinto[23] = new cuadrito(280, 175, 1, 40, "black");
+            piezaLaberinto[24] = new cuadrito(710, 170, 50, 1, "black");
+            piezaLaberinto[25] = new cuadrito(710, 220, 50, 1, "black");
+            piezaLaberinto[26] = new cuadrito(770, 125, 80, 1, "black");
+            piezaLaberinto[27] = new cuadrito(805, 125, 1, 170, "black");
+            piezaLaberinto[28] = new cuadrito(850, 125, 1, 410, "black");
+            piezaLaberinto[29] = new cuadrito(900, 125, 1, 230, "black");
+            piezaLaberinto[30] = new cuadrito(900, 355, 50, 1, "black");
+            piezaLaberinto[31] = new cuadrito(660, 260, 40, 1, "black");
+            piezaLaberinto[32] = new cuadrito(230, 220, 1, 70, "black");
+            piezaLaberinto[33] = new cuadrito(430, 175, 1, 50, "black");
+            piezaLaberinto[34] = new cuadrito(430, 225, 60, 1, "black");
+            piezaLaberinto[35] = new cuadrito(490, 225, 1, 70, "black");
+            piezaLaberinto[36] = new cuadrito(460, 225, 1, 30, "black");
+            piezaLaberinto[37] = new cuadrito(455, 295, 95, 1, "black");
+            piezaLaberinto[38] = new cuadrito(550, 295, 1, 35, "black");
+            piezaLaberinto[39] = new cuadrito(455, 295, 1, 35, "black");
+            piezaLaberinto[40] = new cuadrito(700, 260, 1, 75, "black");
+            piezaLaberinto[41] = new cuadrito(760, 220, 1, 220, "black");
+            piezaLaberinto[42] = new cuadrito(190, 290, 80, 1, "black");
+            piezaLaberinto[43] = new cuadrito(270, 260, 1, 30, "black");
+            piezaLaberinto[44] = new cuadrito(270, 260, 30, 1, "black");
+            piezaLaberinto[45] = new cuadrito(300, 230, 1, 30, "black");
+            piezaLaberinto[46] = new cuadrito(300, 230, 30, 1, "black");
+            piezaLaberinto[47] = new cuadrito(330, 200, 1, 30, "black");
+            piezaLaberinto[48] = new cuadrito(330, 200, 30, 1, "black");
+            piezaLaberinto[49] = new cuadrito(360, 175, 1, 25, "black");
+            piezaLaberinto[50] = new cuadrito(190, 290, 1, 40, "black");
+            piezaLaberinto[51] = new cuadrito(150, 330, 40, 1, "black");
+            piezaLaberinto[52] = new cuadrito(760, 330, 40, 1, "black");
+            piezaLaberinto[53] = new cuadrito(670, 400, 220, 1, "black");
+            piezaLaberinto[54] = new cuadrito(80, 220, 1, 40, "black");
+            piezaLaberinto[55] = new cuadrito(80, 260, 60, 1, "black");
+            piezaLaberinto[56] = new cuadrito(120, 260, 1, 30, "black");
+            piezaLaberinto[57] = new cuadrito(90, 290, 30, 1, "black");
+            piezaLaberinto[58] = new cuadrito(90, 290, 1, 100, "black");
+            piezaLaberinto[59] = new cuadrito(90, 390, 160, 1, "black");
+            piezaLaberinto[60] = new cuadrito(250, 350, 1, 80, "black");
+            piezaLaberinto[61] = new cuadrito(220, 350, 80, 1, "black");
+            piezaLaberinto[62] = new cuadrito(300, 310, 1, 40, "black");
+            piezaLaberinto[63] = new cuadrito(300, 310, 80, 1, "black");
+            piezaLaberinto[64] = new cuadrito(380, 230, 1, 80, "black");
+            piezaLaberinto[65] = new cuadrito(340, 270, 40, 1, "black");
+            piezaLaberinto[66] = new cuadrito(160, 390, 1, 50, "black");
+            piezaLaberinto[67] = new cuadrito(50, 440, 110, 1, "black");
+            piezaLaberinto[68] = new cuadrito(410, 330, 45, 1, "black");
+            piezaLaberinto[69] = new cuadrito(430, 280, 1, 50, "black");
+            piezaLaberinto[70] = new cuadrito(410, 330, 1, 180, "black");
+            piezaLaberinto[71] = new cuadrito(210, 470, 200, 1, "black");
+            piezaLaberinto[72] = new cuadrito(90, 480, 90, 1, "black");
+            piezaLaberinto[73] = new cuadrito(210, 430, 1, 120, "black");
+            piezaLaberinto[74] = new cuadrito(140, 480, 1, 200, "black");
+            piezaLaberinto[99] = new cuadrito(90, 680, 50, 1, "black");
+            piezaLaberinto[100] = new cuadrito(90, 610, 1, 70, "black");
+            piezaLaberinto[75] = new cuadrito(180, 505, 30, 1, "black");
+            piezaLaberinto[76] = new cuadrito(310, 400, 1, 70, "black");
+            piezaLaberinto[77] = new cuadrito(310, 400, 40, 1, "black");
+            piezaLaberinto[78] = new cuadrito(350, 360, 1, 80, "black");
+            piezaLaberinto[79] = new cuadrito(140, 550, 120, 1, "black");
+            piezaLaberinto[80] = new cuadrito(50, 560, 40, 1, "black");
+            piezaLaberinto[81] = new cuadrito(90, 520, 1, 40, "black");
+            piezaLaberinto[82] = new cuadrito(910, 470, 40, 1, "black");
+            piezaLaberinto[83] = new cuadrito(910, 430, 1, 40, "black");
+            piezaLaberinto[84] = new cuadrito(260, 550, 1, 40, "black");
+            piezaLaberinto[85] = new cuadrito(510, 340, 1, 40, "black");
+            piezaLaberinto[86] = new cuadrito(460, 380, 50, 1, "black");
+            piezaLaberinto[87] = new cuadrito(460, 380, 1, 130, "black");
+            piezaLaberinto[88] = new cuadrito(600, 330, 1, 160, "black");
+            piezaLaberinto[89] = new cuadrito(550, 400, 1, 60, "black");
+            piezaLaberinto[90] = new cuadrito(500, 430, 50, 1, "black");
+            piezaLaberinto[91] = new cuadrito(500, 430, 1, 50, "black");
+            piezaLaberinto[92] = new cuadrito(500, 480, 30, 1, "black");
+            piezaLaberinto[93] = new cuadrito(530, 480, 1, 50, "black");
+            piezaLaberinto[94] = new cuadrito(600, 490, 40, 1, "black");
+            piezaLaberinto[95] = new cuadrito(600, 440, 120, 1, "black");
+            piezaLaberinto[96] = new cuadrito(720, 440, 1, 50, "black");
+            piezaLaberinto[97] = new cuadrito(720, 490, 80, 1, "black");
+            piezaLaberinto[98] = new cuadrito(800, 440, 1, 50, "black");
+            piezaLaberinto[101] = new cuadrito(140, 640, 30, 1, "black");
+            piezaLaberinto[102] = new cuadrito(810, 535, 80, 1, "black");
+            piezaLaberinto[103] = new cuadrito(890, 535, 1, 80, "black");
+            piezaLaberinto[104] = new cuadrito(840, 615, 50, 1, "black");
+            piezaLaberinto[105] = new cuadrito(760, 490, 1, 80, "black");
+            piezaLaberinto[106] = new cuadrito(760, 570, 80, 1, "black");
+            piezaLaberinto[107] = new cuadrito(530, 530, 180, 1, "black");
+            piezaLaberinto[108] = new cuadrito(460, 510, 30, 1, "black");
+            piezaLaberinto[109] = new cuadrito(280, 510, 80, 1, "black");
+            piezaLaberinto[110] = new cuadrito(710, 530, 1, 85, "black");
+            piezaLaberinto[111] = new cuadrito(360, 510, 1, 130, "black");
+            piezaLaberinto[112] = new cuadrito(320, 510, 1, 130, "black");
+            piezaLaberinto[113] = new cuadrito(490, 510, 1, 70, "black");
+            piezaLaberinto[114] = new cuadrito(360, 550, 130, 1, "black");
+            piezaLaberinto[115] = new cuadrito(230, 640, 90, 1, "black");
+            piezaLaberinto[116] = new cuadrito(230, 600, 1, 80, "black");
+            piezaLaberinto[117] = new cuadrito(190, 600, 40, 1, "black");
+            piezaLaberinto[118] = new cuadrito(180, 680, 135, 1, "black");
+            piezaLaberinto[119] = new cuadrito(710, 615, 45, 1, "black");
+            piezaLaberinto[120] = new cuadrito(490, 580, 40, 1, "black");
+            piezaLaberinto[121] = new cuadrito(530, 560, 1, 160, "black");
+            piezaLaberinto[122] = new cuadrito(530, 560, 80, 1, "black");
+            piezaLaberinto[123] = new cuadrito(610, 560, 1, 40, "black");
+            piezaLaberinto[124] = new cuadrito(610, 600, 40, 1, "black");
+            piezaLaberinto[125] = new cuadrito(650, 560, 1, 100, "black");
+            piezaLaberinto[126] = new cuadrito(650, 660, 40, 1, "black");
+            piezaLaberinto[127] = new cuadrito(800, 570, 1, 80, "black");
+            piezaLaberinto[128] = new cuadrito(800, 570, 1, 80, "black");
+            piezaLaberinto[129] = new cuadrito(755, 615, 1, 140, "black");
+            piezaLaberinto[130] = new cuadrito(625, 715, 130, 1, "black");
+            piezaLaberinto[131] = new cuadrito(625, 715, 1, 30, "black");
+            piezaLaberinto[132] = new cuadrito(755, 650, 140, 1, "black");
+            piezaLaberinto[133] = new cuadrito(895, 650, 1, 105, "black");
+            piezaLaberinto[134] = new cuadrito(845, 755, 50, 1, "black");
+            piezaLaberinto[135] = new cuadrito(845, 695, 1, 60, "black");
+            piezaLaberinto[136] = new cuadrito(360, 640, 50, 1, "black");
+            piezaLaberinto[137] = new cuadrito(180, 680, 1, 50, "black");
+            piezaLaberinto[138] = new cuadrito(270, 680, 1, 50, "black");
+            piezaLaberinto[139] = new cuadrito(90, 730, 90, 1, "black");
+            piezaLaberinto[140] = new cuadrito(140, 730, 1, 80, "black");
+            piezaLaberinto[141] = new cuadrito(50, 775, 40, 1, "black");
+            piezaLaberinto[141] = new cuadrito(50, 775, 40, 1, "black");
+            piezaLaberinto[142] = new cuadrito(410, 600, 40, 1, "black");
+            piezaLaberinto[143] = new cuadrito(450, 600, 1, 80, "black");
+            piezaLaberinto[144] = new cuadrito(450, 640, 40, 1, "black");
+            piezaLaberinto[145] = new cuadrito(450, 680, 40, 1, "black");
+            piezaLaberinto[146] = new cuadrito(490, 680, 1, 120, "black");
+            piezaLaberinto[147] = new cuadrito(490, 800, 40, 1, "black");
+            piezaLaberinto[148] = new cuadrito(530, 780, 1, 20, "black");
+            piezaLaberinto[149] = new cuadrito(410, 640, 1, 120, "black");
+            piezaLaberinto[150] = new cuadrito(530, 780, 150, 1, "black");
+            piezaLaberinto[151] = new cuadrito(580, 630, 1, 150, "black");
+            piezaLaberinto[152] = new cuadrito(580, 680, 40, 1, "black");
+            piezaLaberinto[153] = new cuadrito(680, 715, 1, 65, "black");
+            piezaLaberinto[154] = new cuadrito(720, 810, 230, 1, "black");
+            piezaLaberinto[155] = new cuadrito(795, 710, 1, 140, "black");
+            piezaLaberinto[156] = new cuadrito(765, 850, 30, 1, "black");
+            piezaLaberinto[157] = new cuadrito(910, 880, 1, 90, "black");
+            piezaLaberinto[158] = new cuadrito(870, 850, 1, 70, "black");
+            piezaLaberinto[158] = new cuadrito(870, 850, 1, 70, "black");
+            piezaLaberinto[159] = new cuadrito(725, 885, 145, 1, "black");
+            piezaLaberinto[160] = new cuadrito(830, 930, 1, 40, "black");
+            piezaLaberinto[161] = new cuadrito(770, 885, 1, 40, "black");
+            piezaLaberinto[161] = new cuadrito(770, 885, 1, 40, "black");
+            piezaLaberinto[162] = new cuadrito(545, 925, 225, 1, "black");
+            piezaLaberinto[163] = new cuadrito(495, 930, 1, 40, "black");
+            piezaLaberinto[164] = new cuadrito(410, 930, 1, 40, "black");
+            piezaLaberinto[165] = new cuadrito(720, 760, 1, 78, "black");
+            piezaLaberinto[166] = new cuadrito(540, 925, 230, 1, "black");
+            piezaLaberinto[167] = new cuadrito(585, 840, 135, 1, "black");
+            piezaLaberinto[168] = new cuadrito(620, 885, 1, 40, "black");
+            piezaLaberinto[169] = new cuadrito(690, 840, 1, 40, "black");
+            piezaLaberinto[170] = new cuadrito(540, 880, 1, 45, "black");
+            piezaLaberinto[171] = new cuadrito(585, 840, 1, 40, "black");
+            piezaLaberinto[172] = new cuadrito(350, 880, 190, 1, "black");
+            piezaLaberinto[173] = new cuadrito(350, 880, 1, 40, "black");
+            piezaLaberinto[174] = new cuadrito(350, 880, 1, 40, "black");
+            piezaLaberinto[175] = new cuadrito(450, 730, 1, 200, "black");
+            piezaLaberinto[176] = new cuadrito(410, 730, 40, 1, "black");
+            piezaLaberinto[177] = new cuadrito(370, 760, 40, 1, "black");
+            piezaLaberinto[178] = new cuadrito(50, 930, 40, 1, "black");
+            piezaLaberinto[179] = new cuadrito(90, 810, 170, 1, "black");
+            piezaLaberinto[180] = new cuadrito(90, 870, 40, 1, "black");
+            piezaLaberinto[181] = new cuadrito(200, 870, 1, 100, "black");
+            piezaLaberinto[182] = new cuadrito(130, 930, 40, 1, "black");
+            piezaLaberinto[183] = new cuadrito(90, 810, 1, 60, "black");
+            piezaLaberinto[184] = new cuadrito(130, 870, 1, 60, "black");
+            piezaLaberinto[185] = new cuadrito(170, 870, 120, 1, "black");
+            piezaLaberinto[186] = new cuadrito(290, 770, 1, 100, "black");
+            piezaLaberinto[187] = new cuadrito(190, 770, 130, 1, "black");
+            piezaLaberinto[188] = new cuadrito(240, 930, 80, 1, "black");
+            piezaLaberinto[189] = new cuadrito(320, 720, 1, 210, "black");
+            piezaLaberinto[190] = new cuadrito(320, 830, 90, 1, "black");
+            piezaLaberinto[191] = new cuadrito(320, 720, 40, 1, "black");
+            piezaLaberinto[192] = new cuadrito(360, 680, 1, 40, "black");
+
+            caperucita.src = "caperucita.png";
+            abuelita.src = "abuelita.png";
+            lofiBosque.src = "lofiBosque.mp3";
+            bosque.src = "bosque.png";
+            lobo.src = "lobo.png";
+            final.src = "final.png";
+            pausa.src = "paussa.png";
+            instrucciones.src = "instrucciones.png";
+            controles.src = "controles.png";
+            meta.src = "meta.png";
+            felicidades.src = "felicidades.png";
+
+            paint();
+        }
+
+        function empezar() {
+
+            clearInterval(fragmentoTiempo);
+            Interval = setInterval(temporizador, 10);
+        }
+
+        function temporizador() {
+
+            centesimas++;
+
+            if (centesimas <= 9) {
+                contCentesimas = "0" + centesimas;
+            }
+
+            if (centesimas > 9) {
+                contCentesimas = centesimas;
+            }
+
+            if (centesimas > 99) {
+                segundos++;
+                contSegundos = "0" + segundos;
+                centesimas = 0;
+                contCentesimas = "0" + 0;
+            }
+
+            if (segundos > 9) {
+                contSegundos = segundos;
+            } else {
+                contSegundos = "0" + segundos;
+            }
+
+            if (segundos > 59) {
+                minutos++;
+                segundos = 0;
+                contSegundos = "0" + segundos;
+            }
+
+            if (minutos > 9) {
+                contMinutos = minutos;
+            } else {
+                contMinutos = "0" + minutos;
+            }
+
+        }
+
+        function paint() {
+
+            window.requestAnimationFrame(paint)
+            ctx.fillStyle = "Crimson";
+            ctx.fillRect(0, 0, 1000, 1000);
+
+            ctx.drawImage(bosque, 0, 0, 1000, 1000);
+            ctx.drawImage(caperucita, player1.x, player1.y, 30, 30);
+            ctx.drawImage(abuelita, player2.x, player2.y, 80, 70);
+
+            ctx.font = "35px Arial Black";
+            ctx.fillText("Tiempo: " + minutos + ":" + segundos + ":" + centesimas, 680, 40);
+
+            for (var i = 0; i < piezaLaberinto.length; i++) {
+                piezaLaberinto[i].pintar(ctx);
+            }
+
+            if (pause) {
+                ctx.fillStyle = "rgb(255, 255, 255,0.7";
+                ctx.fillRect(0, 0, 1000, 1000);
+
+                ctx.drawImage(pausa, 250, 50, 500, 200);
+                ctx.drawImage(instrucciones, 280, 220, 450, 450);
+                ctx.drawImage(controles, 280, 480, 450, 450);
+                ctx.drawImage(lobo, 610, 730, 250, 250);
+
+                lofiBosque.pause()
+                lofiBosque.volume = 0.5;
+            } else if (seTocaron) {
+                ctx.fillStyle = "rgb(255, 255, 255 ,0.9";
+                ctx.fillRect(0, 0, 1000, 1000);
+
+                ctx.drawImage(meta, 280, 0, 400, 400);
+                ctx.drawImage(felicidades, 280, 370, 400, 400);
+                ctx.drawImage(final, 230, 680, 550, 300)
+
+                lofiBosque.pause();
+
+            } else {
+                update();
+                lofiBosque.play()
+                temporizador();
+            }
+        }
+
+        function update() {
+
+            if (dir == 'arriba') {
+                player1.y -= speed;
+                if (player1.y < 0) {
+                    player1.y = 1000;
+                }
+            }
+
+            if (dir == 'abajo') {
+                player1.y += speed;
+
+                if (player1.y > 1000) {
+                    player1.y = 0;
+                }
+            }
+
+            if (dir == 'izquierda') {
+                player1.x -= speed;
+                if (player1.x < 0) {
+                    player1.x = 1000;
+                }
+            }
+
+            if (dir == 'derecha') {
+                player1.x += speed;
+                if (player1.x > 1000) {
+                    player1.x = 0;
+                }
+            }
+
+            if (player1.se_tocan(player2)) {
+                seTocaron = true;
+                lofiBosque.play();
+            }
+
+            for (var i = 0; i < piezaLaberinto.length; i++) {
+                if (player1.se_tocan(piezaLaberinto[i])) {
+                    if (dir == "arriba") {
+                        player1.y += speed;
+                    }
+                    if (dir == "abajo") {
+                        player1.y -= speed;
+                    }
+                    if (dir == "izquierda") {
+                        player1.x += speed;
+                    }
+                    if (dir == "derecha") {
+                        player1.x -= speed;
+                    }
+                }
+            }
+        }
+
+        window.requestAnimationFrame = (function () {
+            return window.requestAnimationFrame ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame ||
+                function (callback) {
+                    window.setTimeout(callback, 17);
+                };
+        }());
+
+        function actualizar() { location.reload(true); }
+
+        function randomRgbColor() {
+            let r = randomInteger(255);
+            let g = randomInteger(255);
+            let b = randomInteger(255);
+            return "rgba(" + r + "," + g + "," + b + ",0.3)";
+        }
+
+        function randomInteger(max) {
+            return Math.floor(Math.random() * (max + 1));
+        }
+
+        document.addEventListener('keydown', function (e) {
+            console.log(e);
+
+            if (e.keyCode == 87 || e.keyCode == 38) {
+                dir = 'arriba';
+            }
+
+            if (e.keyCode == 83 || e.keyCode == 40) {
+                dir = 'abajo';
+            }
+
+            if (e.keyCode == 65 || e.keyCode == 37) {
+                dir = 'izquierda';
+            }
+
+            if (e.keyCode == 68 || e.keyCode == 39) {
+                dir = 'derecha';
+            }
+
+            if (e.keyCode == 32) {
+                pause = (pause) ? false : true;
+            }
+
+            if (e.keyCode == 82) {
+                actualizar();
+            }
+        })
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        window.addEventListener('load', laberinto, false);
+
+
+    </script>
+
+</body>
+
+</html>
